@@ -355,6 +355,7 @@
         <input type="text" id="interviewerInput" placeholder="Interviewer">
         <input type="url" id="meetingLinkInput" placeholder="Meeting Link">
         <button id="addInterviewBtn" class="primary" style="flex:0 0 auto;">Add</button>
+        <button id="cancelEditBtn" type="button" style="flex:0 0 auto; display:none;">Cancel</button>
       </div>
     </div>
   </div>
@@ -528,7 +529,10 @@
           <td>${escapeHtml(iv.interviewer || '—')}</td>
           <td>${iv.meetingLink ? `<a href="${escapeHtml(iv.meetingLink)}" target="_blank" rel="noopener" class="meeting-link">Join</a>` : '—'}</td>
           <td><span class="badge ${isConflict ? 'conflict' : 'scheduled'}">${escapeHtml(iv.status)}</span></td>
-          <td><button class="delete-btn" data-index="${originalIndex}" style="padding:0.3rem 0.6rem;">🗑</button></td>
+          <td>
+            <button class="edit-btn" data-index="${originalIndex}" style="padding:0.3rem 0.6rem;">✏️</button>
+            <button class="delete-btn" data-index="${originalIndex}" style="padding:0.3rem 0.6rem; margin-left:0.35rem;">🗑</button>
+          </td>
         `;
         tableBody.appendChild(row);
       });
@@ -541,7 +545,22 @@
             interviews.splice(idx, 1);
             updateConflictStatus();
             saveToStorage();
+            if (editingIndex === idx) {
+              resetForm();
+            }
             applyCurrentFiltersAndRender();
+          }
+        });
+      });
+
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
+          if (!isNaN(idx) && idx >= 0 && idx < interviews.length) {
+            editingIndex = idx;
+            populateForm(interviews[idx]);
+            setEditingMode(true);
+            document.getElementById('candidateInput').focus();
           }
         });
       });
@@ -560,6 +579,39 @@
     // ----- FILTER & SEARCH LOGIC -----
     let conflictFilterActive = false;
     let searchTerm = '';
+    let editingIndex = null;
+
+    function setEditingMode(isEditing) {
+      const addBtn = document.getElementById('addInterviewBtn');
+      const cancelBtn = document.getElementById('cancelEditBtn');
+      if (isEditing) {
+        addBtn.textContent = 'Save Changes';
+        addBtn.classList.add('primary');
+        cancelBtn.style.display = 'inline-flex';
+      } else {
+        addBtn.textContent = 'Add';
+        cancelBtn.style.display = 'none';
+      }
+    }
+
+    function populateForm(interview) {
+      document.getElementById('candidateInput').value = interview.candidate || '';
+      document.getElementById('roleInput').value = interview.role || '';
+      document.getElementById('roundInput').value = interview.round || '';
+      document.getElementById('dateInput').value = interview.date || '';
+      document.getElementById('startTimeInput').value = interview.startTime || '';
+      document.getElementById('endTimeInput').value = interview.endTime || '';
+      document.getElementById('interviewerInput').value = interview.interviewer || '';
+      document.getElementById('meetingLinkInput').value = interview.meetingLink || '';
+    }
+
+    function resetForm() {
+      ['candidateInput','roleInput','roundInput','dateInput','startTimeInput','endTimeInput','interviewerInput','meetingLinkInput'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      editingIndex = null;
+      setEditingMode(false);
+    }
 
     function applyCurrentFiltersAndRender() {
       let filtered = [...interviews];
@@ -636,7 +688,7 @@
         alert('Candidate and Role are required.');
         return;
       }
-      const newIv = {
+      const interviewData = {
         candidate,
         role,
         round: document.getElementById('roundInput').value.trim(),
@@ -647,14 +699,15 @@
         meetingLink: document.getElementById('meetingLinkInput').value.trim(),
         status: 'Scheduled'
       };
-      interviews.push(newIv);
+      if (editingIndex !== null && editingIndex >= 0 && editingIndex < interviews.length) {
+        interviews[editingIndex] = interviewData;
+      } else {
+        interviews.push(interviewData);
+      }
       updateConflictStatus();
       saveToStorage();
       refreshUI();
-      // clear form
-      ['candidateInput','roleInput','roundInput','dateInput','startTimeInput','endTimeInput','interviewerInput','meetingLinkInput'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
+      resetForm();
     }
 
     // ----- EXPORT CSV -----
@@ -699,6 +752,7 @@
       });
 
       document.getElementById('addInterviewBtn').addEventListener('click', addInterviewFromForm);
+      document.getElementById('cancelEditBtn').addEventListener('click', () => resetForm());
 
       document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
 
