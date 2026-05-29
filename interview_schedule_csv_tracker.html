@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Interview Schedule Manager | Enterprise ATS</title>
+  <style>
+    /* ----- GLOBAL RESET & TYPOGRAPHY ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background-color: #f8f9fa;
+      color: #1e293b;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding: 2rem 1.5rem;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-container {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* ----- TYPOGRAPHY HIERARCHY ----- */
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #475569;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ----- CARDS & PANELS (neutral, subtle shadows) ----- */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e9eef2;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid #eef2f6;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #5f6b7a;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+
+    .conflict-stat .stat-value {
+      color: #b91c1c;
+    }
+
+    /* ----- BUTTONS (clean, corporate) ----- */
+    button, .btn {
+      background: #ffffff;
+      border: 1px solid #dce2e8;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #1e293b;
+      background: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+    }
+
+    button:hover {
+      background: #f9fafb;
+      border-color: #cbd5e1;
+    }
+
+    button.primary {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: white;
+      font-weight: 500;
+    }
+
+    button.primary:hover {
+      background: #1e293b;
+      border-color: #1e293b;
+    }
+
+    button.danger {
+      border-color: #fecaca;
+      color: #b91c1c;
+      background: #fff5f5;
+    }
+
+    button.danger:hover {
+      background: #fee2e2;
+      border-color: #f87171;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    /* ----- FORM ELEMENTS ----- */
+    input, textarea, select {
+      font-family: inherit;
+      font-size: 0.875rem;
+      padding: 0.6rem 0.9rem;
+      border: 1px solid #dce2e8;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #1e293b;
+      outline: none;
+      transition: border 0.15s;
+      width: 100%;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #94a3b8;
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .form-row > * {
+      flex: 1 1 160px;
+    }
+
+    /* ----- TABLE (sticky header, professional spacing) ----- */
+    .table-wrapper {
+      border-radius: 16px;
+      border: 1px solid #e9eef2;
+      background: #ffffff;
+      overflow: auto;
+      max-height: 500px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1100px;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #475569;
+      padding: 0.9rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.9rem;
+      color: #1e293b;
+    }
+
+    tbody tr {
+      transition: background 0.1s;
+    }
+
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .conflict-row {
+      background: #fff5f5 !important;
+      border-left: 3px solid #dc2626;
+    }
+
+    .conflict-row td:first-child {
+      padding-left: calc(1rem - 3px);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    .badge.conflict {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge.scheduled {
+      background: #e6f3e6;
+      color: #14532d;
+    }
+
+    .meeting-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px solid transparent;
+    }
+
+    .meeting-link:hover {
+      border-bottom: 1px solid #2563eb;
+    }
+
+    .search-filter-area {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .search-box {
+      flex: 2;
+      min-width: 240px;
+    }
+
+    hr {
+      border: 0.5px solid #e9eef2;
+      margin: 1.25rem 0;
+    }
+
+    @media (max-width: 900px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      body {
+        padding: 1.5rem 1rem;
+      }
+    }
+
+    @media (max-width: 550px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <!-- HEADER -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <h1>📋 Interview Schedule</h1>
+    <div class="button-group">
+      <button id="exportCsvBtn" class="primary">⬇ Export CSV</button>
+    </div>
+  </div>
+
+  <!-- STATISTICS CARDS -->
+  <div class="stats-grid" id="statsContainer">
+    <!-- dynamically filled -->
+  </div>
+
+  <!-- CSV IMPORT + QUICK ADD (two panels) -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+    <div class="card">
+      <h2>📥 Import CSV</h2>
+      <textarea id="csvTextarea" placeholder="Paste CSV here...&#10;Example: Candidate,Role,Round,Date,Start Time,End Time,Interviewer,Meeting Link"></textarea>
+      <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+        <button id="parseCsvBtn" class="primary">Parse & Merge</button>
+        <button id="clearImportBtn">Clear</button>
+      </div>
+      <p style="font-size:0.75rem; color:#5f6b7a; margin-top:0.5rem;">Headers normalized automatically (Name→Candidate, link→Meeting Link, etc.)</p>
+    </div>
+
+    <div class="card">
+      <h2>➕ Quick Add Interview</h2>
+      <div class="form-row" style="margin-bottom:0.5rem;">
+        <input type="text" id="candidateInput" placeholder="Candidate*">
+        <input type="text" id="roleInput" placeholder="Role*">
+        <input type="text" id="roundInput" placeholder="Round">
+      </div>
+      <div class="form-row" style="margin-bottom:0.5rem;">
+        <input type="date" id="dateInput">
+        <input type="time" id="startTimeInput" placeholder="Start">
+        <input type="time" id="endTimeInput" placeholder="End">
+      </div>
+      <div class="form-row">
+        <input type="text" id="interviewerInput" placeholder="Interviewer">
+        <input type="url" id="meetingLinkInput" placeholder="Meeting Link">
+        <button id="addInterviewBtn" class="primary" style="flex:0 0 auto;">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERS & SEARCH -->
+  <div class="card" style="padding:1rem 1.5rem;">
+    <div class="search-filter-area">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by candidate, role, interviewer...">
+      </div>
+      <div class="button-group">
+        <button id="toggleConflictFilter" class="danger">⚠ Show Conflicts Only</button>
+        <button id="clearFiltersBtn">Clear Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERVIEW TABLE -->
+  <div class="table-wrapper" id="tableWrapper">
+    <table id="interviewTable">
+      <thead>
+         <tr>
+            <th>Candidate</th>
+            <th>Role</th>
+            <th>Round</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Interviewer</th>
+            <th>Meeting Link</th>
+            <th>Status</th>
+            <th></th>
+         </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- MODULAR STATE & STORAGE -----
+    const STORAGE_KEY = 'interview_schedule_data';
+    let interviews = [];
+
+    // ----- NORMALIZATION MAP for CSV headers -----
+    const HEADER_ALIASES = {
+      'candidate': 'candidate', 'name': 'candidate', 'candidate name': 'candidate',
+      'role': 'role', 'position': 'role', 'job role': 'role',
+      'round': 'round', 'interview round': 'round',
+      'date': 'date', 'interview date': 'date',
+      'start time': 'startTime', 'start_time': 'startTime', 'start': 'startTime',
+      'end time': 'endTime', 'end_time': 'endTime', 'end': 'endTime',
+      'interviewer': 'interviewer', 'interviewer name': 'interviewer',
+      'meeting link': 'meetingLink', 'link': 'meetingLink', 'url': 'meetingLink',
+      'status': 'status'
+    };
+
+    function normalizeHeader(raw) {
+      return HEADER_ALIASES[raw.trim().toLowerCase()] || raw.trim().toLowerCase();
+    }
+
+    // ----- UTILS: Date/Time parsing -----
+    function parseDateTime(dateStr, timeStr) {
+      if (!dateStr || !timeStr) return null;
+      try {
+        const normalizedDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+        const combined = `${normalizedDate}T${timeStr}`;
+        const date = new Date(combined);
+        return isNaN(date.getTime()) ? null : date;
+      } catch {
+        return null;
+      }
+    }
+
+    // ----- OVERLAP DETECTION (same date + time intersection) -----
+    function detectOverlaps(interviewList) {
+      const conflicts = new Set();
+      const n = interviewList.length;
+      for (let i = 0; i < n; i++) {
+        const a = interviewList[i];
+        const startA = parseDateTime(a.date, a.startTime);
+        const endA = parseDateTime(a.date, a.endTime);
+        if (!startA || !endA) continue;
+        for (let j = i + 1; j < n; j++) {
+          const b = interviewList[j];
+          if (a.date !== b.date) continue;
+          const startB = parseDateTime(b.date, b.startTime);
+          const endB = parseDateTime(b.date, b.endTime);
+          if (!startB || !endB) continue;
+          if (startA < endB && startB < endA) {
+            conflicts.add(i);
+            conflicts.add(j);
+          }
+        }
+      }
+      return conflicts;
+    }
+
+    function updateConflictStatus() {
+      const conflictSet = detectOverlaps(interviews);
+      interviews.forEach((iv, idx) => {
+        iv.status = conflictSet.has(idx) ? 'Conflict' : 'Scheduled';
+      });
+    }
+
+    // ----- LOCAL STORAGE -----
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(interviews));
+    }
+
+    function loadFromStorage() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          interviews = JSON.parse(stored);
+        } catch (e) {
+          interviews = [];
+        }
+      } else {
+        // seed with sample data for professional look
+        interviews = [
+          { candidate: 'Aarav Mehta', role: 'Frontend Engineer', round: 'Technical', date: '2026-06-02', startTime: '10:00', endTime: '10:45', interviewer: 'Lisa Chen', meetingLink: 'https://meet.google.com/abc', status: 'Scheduled' },
+          { candidate: 'Priya Sharma', role: 'Product Manager', round: 'Culture', date: '2026-06-02', startTime: '10:30', endTime: '11:00', interviewer: 'Mark Rivera', meetingLink: 'https://zoom.us/j/123', status: 'Conflict' }
+        ];
+      }
+      updateConflictStatus();
+    }
+
+    // ----- RENDER TABLE -----
+    const tableBody = document.querySelector('#interviewTable tbody');
+    const statsContainer = document.getElementById('statsContainer');
+
+    function renderStats() {
+      const total = interviews.length;
+      const conflicts = interviews.filter(i => i.status === 'Conflict').length;
+      const today = new Date().toISOString().split('T')[0];
+      const upcomingToday = interviews.filter(i => i.date === today).length;
+      const uniqueCandidates = new Set(interviews.map(i => i.candidate?.trim().toLowerCase())).size;
+      
+      statsContainer.innerHTML = `
+        <div class="stat-card"><span class="stat-label">Total Interviews</span><span class="stat-value">${total}</span></div>
+        <div class="stat-card conflict-stat"><span class="stat-label">⚠ Conflicts</span><span class="stat-value">${conflicts}</span></div>
+        <div class="stat-card"><span class="stat-label">Upcoming Today</span><span class="stat-value">${upcomingToday}</span></div>
+        <div class="stat-card"><span class="stat-label">Unique Candidates</span><span class="stat-value">${uniqueCandidates}</span></div>
+      `;
+    }
+
+    function renderTable(filteredInterviews = null) {
+      const dataToRender = filteredInterviews ?? interviews;
+      tableBody.innerHTML = '';
+      
+      if (dataToRender.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:2rem; color:#64748b;">No interviews found.</td></tr>`;
+        return;
+      }
+
+      dataToRender.forEach((iv, displayIndex) => {
+        const originalIndex = interviews.indexOf(iv);
+        const isConflict = iv.status === 'Conflict';
+        const row = document.createElement('tr');
+        if (isConflict) row.classList.add('conflict-row');
+        
+        row.innerHTML = `
+          <td>${escapeHtml(iv.candidate || '—')}</td>
+          <td>${escapeHtml(iv.role || '—')}</td>
+          <td>${escapeHtml(iv.round || '—')}</td>
+          <td>${escapeHtml(iv.date || '—')}</td>
+          <td>${escapeHtml(iv.startTime || '—')}</td>
+          <td>${escapeHtml(iv.endTime || '—')}</td>
+          <td>${escapeHtml(iv.interviewer || '—')}</td>
+          <td>${iv.meetingLink ? `<a href="${escapeHtml(iv.meetingLink)}" target="_blank" rel="noopener" class="meeting-link">Join</a>` : '—'}</td>
+          <td><span class="badge ${isConflict ? 'conflict' : 'scheduled'}">${escapeHtml(iv.status)}</span></td>
+          <td><button class="delete-btn" data-index="${originalIndex}" style="padding:0.3rem 0.6rem;">🗑</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      // attach delete events
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
+          if (!isNaN(idx) && idx >= 0 && idx < interviews.length) {
+            interviews.splice(idx, 1);
+            updateConflictStatus();
+            saveToStorage();
+            applyCurrentFiltersAndRender();
+          }
+        });
+      });
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? '').replace(/[&<>"]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        if (m === '"') return '&quot;';
+        return m;
+      });
+    }
+
+    // ----- FILTER & SEARCH LOGIC -----
+    let conflictFilterActive = false;
+    let searchTerm = '';
+
+    function applyCurrentFiltersAndRender() {
+      let filtered = [...interviews];
+      
+      if (conflictFilterActive) {
+        filtered = filtered.filter(iv => iv.status === 'Conflict');
+      }
+      
+      if (searchTerm.trim()) {
+        const term = searchTerm.trim().toLowerCase();
+        filtered = filtered.filter(iv => 
+          (iv.candidate?.toLowerCase().includes(term)) ||
+          (iv.role?.toLowerCase().includes(term)) ||
+          (iv.interviewer?.toLowerCase().includes(term))
+        );
+      }
+      
+      // sort by date then start time
+      filtered.sort((a, b) => {
+        const dateA = a.date || '9999';
+        const dateB = b.date || '9999';
+        if (dateA !== dateB) return dateA.localeCompare(dateB);
+        return (a.startTime || '').localeCompare(b.startTime || '');
+      });
+      
+      renderTable(filtered);
+      renderStats();
+    }
+
+    function refreshUI() {
+      applyCurrentFiltersAndRender();
+    }
+
+    // ----- CSV PARSING & MERGE -----
+    function parseCSV(text) {
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+      if (lines.length === 0) return [];
+      const rawHeaders = lines[0].split(',').map(h => h.trim());
+      const headers = rawHeaders.map(normalizeHeader);
+      
+      const parsed = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        if (values.length === 0 || values.every(v => v === '')) continue;
+        const obj = {
+          candidate: '', role: '', round: '', date: '', startTime: '', endTime: '', interviewer: '', meetingLink: '', status: 'Scheduled'
+        };
+        headers.forEach((key, idx) => {
+          if (idx < values.length && key in obj) {
+            obj[key] = values[idx];
+          }
+        });
+        if (!obj.candidate && !obj.role) continue; // skip empty rows
+        parsed.push(obj);
+      }
+      return parsed;
+    }
+
+    function mergeInterviews(newInterviews) {
+      newInterviews.forEach(iv => {
+        iv.status = 'Scheduled'; // reset, overlap recalc later
+        interviews.push(iv);
+      });
+      updateConflictStatus();
+      saveToStorage();
+      refreshUI();
+    }
+
+    // ----- QUICK ADD -----
+    function addInterviewFromForm() {
+      const candidate = document.getElementById('candidateInput').value.trim();
+      const role = document.getElementById('roleInput').value.trim();
+      if (!candidate || !role) {
+        alert('Candidate and Role are required.');
+        return;
+      }
+      const newIv = {
+        candidate,
+        role,
+        round: document.getElementById('roundInput').value.trim(),
+        date: document.getElementById('dateInput').value,
+        startTime: document.getElementById('startTimeInput').value,
+        endTime: document.getElementById('endTimeInput').value,
+        interviewer: document.getElementById('interviewerInput').value.trim(),
+        meetingLink: document.getElementById('meetingLinkInput').value.trim(),
+        status: 'Scheduled'
+      };
+      interviews.push(newIv);
+      updateConflictStatus();
+      saveToStorage();
+      refreshUI();
+      // clear form
+      ['candidateInput','roleInput','roundInput','dateInput','startTimeInput','endTimeInput','interviewerInput','meetingLinkInput'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    // ----- EXPORT CSV -----
+    function exportToCSV() {
+      if (interviews.length === 0) {
+        alert('No data to export.');
+        return;
+      }
+      const headers = ['Candidate','Role','Round','Date','Start Time','End Time','Interviewer','Meeting Link','Status'];
+      const rows = interviews.map(iv => [
+        iv.candidate, iv.role, iv.round, iv.date, iv.startTime, iv.endTime, iv.interviewer, iv.meetingLink, iv.status
+      ]);
+      let csvContent = headers.join(',') + '\n';
+      rows.forEach(row => {
+        csvContent += row.map(cell => `"${(cell??'').replace(/"/g, '""')}"`).join(',') + '\n';
+      });
+      const blob = new Blob([csvContent], {type: 'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `interview_schedule_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ----- EVENT LISTENERS -----
+    function bindEvents() {
+      document.getElementById('parseCsvBtn').addEventListener('click', () => {
+        const text = document.getElementById('csvTextarea').value;
+        if (!text.trim()) return;
+        const parsed = parseCSV(text);
+        if (parsed.length) {
+          mergeInterviews(parsed);
+          document.getElementById('csvTextarea').value = '';
+        } else {
+          alert('No valid interview rows found.');
+        }
+      });
+
+      document.getElementById('clearImportBtn').addEventListener('click', () => {
+        document.getElementById('csvTextarea').value = '';
+      });
+
+      document.getElementById('addInterviewBtn').addEventListener('click', addInterviewFromForm);
+
+      document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
+
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchTerm = e.target.value;
+        refreshUI();
+      });
+
+      const toggleBtn = document.getElementById('toggleConflictFilter');
+      toggleBtn.addEventListener('click', function() {
+        conflictFilterActive = !conflictFilterActive;
+        this.textContent = conflictFilterActive ? '✅ Show All Interviews' : '⚠ Show Conflicts Only';
+        this.classList.toggle('danger', conflictFilterActive);
+        refreshUI();
+      });
+
+      document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+        searchTerm = '';
+        document.getElementById('searchInput').value = '';
+        conflictFilterActive = false;
+        const toggle = document.getElementById('toggleConflictFilter');
+        toggle.textContent = '⚠ Show Conflicts Only';
+        toggle.classList.add('danger');
+        refreshUI();
+      });
+    }
+
+    // ----- INITIAL BOOT -----
+    loadFromStorage();
+    window.addEventListener('DOMContentLoaded', () => {
+      bindEvents();
+      refreshUI();
+    });
+  })();
+</script>
+</body>
+</html>
